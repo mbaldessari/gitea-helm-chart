@@ -61,10 +61,12 @@ imagePullSecrets: []
 # Security context is only usable with rootless image due to image design
 ## @param podSecurityContext.fsGroup Set the shared file system group for all containers in the pod.
 podSecurityContext:
-  fsGroup: 1000
+  fsGroup: null
 
 ## @param containerSecurityContext Security context
-containerSecurityContext: {}
+containerSecurityContext:
+  runAsUser: null
+  seLinuxOptions: null
 #   allowPrivilegeEscalation: false
 #   capabilities:
 #     drop:
@@ -492,6 +494,16 @@ redis-cluster:
     nodes: 3 # default: 6
     replicas: 0 # default: 1
 
+  # Needed to run on openshift
+  containerSecurityContext:
+    runAsUser: null
+    seLinuxOptions: null
+  podSecurityContext:
+    fsGroup: null
+  volumePermissions:
+    containerSecurityContext:
+      runAsUser: null
+
 ## @section postgresql-ha
 #
 ## @param postgresql-ha.enabled Enable postgresql-ha
@@ -510,7 +522,7 @@ postgresql-ha:
       database: gitea
       password: gitea
       username: gitea
-  enabled: true
+  enabled: false
   postgresql:
     repmgrPassword: changeme2
     postgresPassword: changeme1
@@ -533,7 +545,7 @@ postgresql-ha:
 ## @param postgresql.global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
 ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
 postgresql:
-  enabled: false
+  enabled: true
   global:
     postgresql:
       auth:
@@ -546,6 +558,17 @@ postgresql:
   primary:
     persistence:
       size: 10Gi
+
+  # Needed to run on openshift
+  primary:
+    containerSecurityContext:
+      runAsUser: null
+      seLinuxOptions: null
+    podSecurityContext:
+      fsGroup: null
+  volumePermissions:
+    containerSecurityContext:
+      runAsUser: null
 
 # By default, removed or moved settings that still remain in a user defined values.yaml will cause Helm to fail running the install/update.
 # Set it to false to skip this basic validation check.
